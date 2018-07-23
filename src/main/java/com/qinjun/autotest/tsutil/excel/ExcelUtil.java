@@ -67,7 +67,7 @@ public class ExcelUtil {
         Row row = null;
         try {
             Sheet sheet = getSheet(path, sheetName);
-            Row row = sheet.getRow(cellRowNum);
+            row = sheet.getRow(cellRowNum);
         } catch (Exception e) {
             String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
             logger.error("Get exception:" + exceptionStackTrace);
@@ -80,7 +80,7 @@ public class ExcelUtil {
     public static Row getRow(Sheet sheet, int cellRowNum) throws TSUtilException {
         Row row = null;
         try {
-            Row row = sheet.getRow(cellRowNum);
+            row = sheet.getRow(cellRowNum);
         } catch (Exception e) {
             String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
             logger.error("Get exception:" + exceptionStackTrace);
@@ -311,6 +311,6 @@ public class ExcelUtil {
         }
     }
 
-    
+
 
 }
