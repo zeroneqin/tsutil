@@ -62,11 +62,37 @@ public class ExcelUtil {
         return sheet;
     }
 
-    public static Cell getCell(String path, String sheetName, int cellRowNum, int cellColumnNum) throws TSUtilException {
-        Cell cell = null;
+
+    public static Row getRow(String path, String sheetName, int cellRowNum) throws TSUtilException {
+        Row row = null;
         try {
             Sheet sheet = getSheet(path, sheetName);
             Row row = sheet.getRow(cellRowNum);
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return row;
+    }
+
+
+    public static Row getRow(Sheet sheet, int cellRowNum) throws TSUtilException {
+        Row row = null;
+        try {
+            Row row = sheet.getRow(cellRowNum);
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return row;
+    }
+
+    public static Cell getCell(String path, String sheetName, int cellRowNum, int cellColumnNum) throws TSUtilException {
+        Cell cell = null;
+        try {
+            Row row = getRow(path,sheetName,cellRowNum);
             cell = row.getCell(cellColumnNum);
         } catch (Exception e) {
             String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
@@ -77,10 +103,9 @@ public class ExcelUtil {
     }
 
 
-    public static Cell getCell(Sheet sheet, int cellRowNum, int cellColumnNum) throws TSUtilException {
+    public static Cell getCell(Row row, int cellColumnNum) throws TSUtilException {
         Cell cell = null;
         try {
-            Row row = sheet.getRow(cellRowNum);
             cell = row.getCell(cellColumnNum);
         } catch (Exception e) {
             String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
@@ -176,19 +201,75 @@ public class ExcelUtil {
         return result;
     }
 
+    public static int getLastRowNum(String path, String sheetName) throws TSUtilException{
+        int lastRowNum = -1;
+        try {
+            Sheet sheet = getSheet(path, sheetName);
+            lastRowNum = sheet.getLastRowNum();
+
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return lastRowNum;
+    }
+
+    public static int getLastRowNum(Sheet sheet) throws TSUtilException{
+        int lastRowNum = -1;
+        try {
+            lastRowNum = sheet.getLastRowNum();
+
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return lastRowNum;
+    }
+
+
+    public static int getLastColumnNum(String path, String sheetName) throws TSUtilException{
+        int lastColumnNum = -1;
+        try {
+            Sheet sheet = getSheet(path, sheetName);
+            Row row = sheet.getRow(0);
+            lastColumnNum = row.getLastCellNum();
+
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return lastColumnNum;
+    }
+
+    public static int getLastColumnNum(Sheet sheet) throws TSUtilException{
+        int lastColumnNum = -1;
+        try {
+            Row row = sheet.getRow(0);
+            lastColumnNum = row.getLastCellNum();
+        } catch (Exception e) {
+            String exceptionStackTrace = ExceptionUtil.getExceptionStackTrace(e);
+            logger.error("Get exception:" + exceptionStackTrace);
+            throw new TSUtilException(exceptionStackTrace);
+        }
+        return lastColumnNum;
+    }
+
 
     public static String[][] getSheetContent(String path, String sheetName) throws TSUtilException {
         String[][] content = null;
         try {
             Sheet sheet = getSheet(path, sheetName);
-            int lastRowNum = sheet.getLastRowNum();
-            Row row = sheet.getRow(0);
-            int lastCellNum = row.getLastCellNum();
+            int lastRowNum =getLastRowNum(sheet);
+            int lastColumnNum = getLastColumnNum(sheet);
 
-            content = new String[lastRowNum + 1][lastCellNum];
+            content = new String[lastRowNum + 1][lastColumnNum];
             for (int i = 0; i <= lastRowNum; i++) {
-                for (int j = 0; j < lastCellNum; j++) {
-                    Cell cell = getCell(sheet, i, j);
+                Row row = getRow(sheet,i);
+                for (int j = 0; j < lastColumnNum; j++) {
+                    Cell cell = getCell(row, j);
                     String value = getCellValue(cell);
                     content[i][j] = value;
                 }
@@ -218,7 +299,8 @@ public class ExcelUtil {
         try {
             Workbook workbook = getWorkBook(path);
             Sheet sheet = getSheet(workbook,sheetName);
-            Cell cell = getCell(sheet,rowNum,columnNum);
+            Row row = getRow(sheet,rowNum);
+            Cell cell = getCell(row,columnNum);
             cell.setCellValue(value);
             saveWorkBook(workbook,path);
         }
@@ -229,6 +311,6 @@ public class ExcelUtil {
         }
     }
 
-
+    
 
 }
